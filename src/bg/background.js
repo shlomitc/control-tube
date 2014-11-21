@@ -6,36 +6,38 @@
 
 
 //example of using a message handler from the inject scripts
-//chrome.extension.onMessage.addListener(
-//  function(request, sender, sendResponse) {
-//  	chrome.pageAction.show(sender.tab.id);
-//    sendResponse();
-//  });
+chrome.extension.onMessage.addListener(
+  function(request, sender, sendResponse) {
+  	chrome.pageAction.show(sender.tab.id);
+    sendResponse();
+  });
 
 
-var $ = window.jQuery;
-var vid,
-    currentTabId = -1,
+
+var currentTabId = -1,
     currentTabIndex = -1;
 
 window.onload = function () {
 
 
-    var updateVideoElement = function () {
-        vid = $('[data-youtube-id]');
+    var injectToVideoTab = function (tabId, tabIndex) {
+        chrome.tabs.executeScript(tabId, {file:'../jquery-2.1.1.min.js'}, function (resultArrayJquery) {
+            chrome.tabs.executeScript(tabId, {file:'../videoObjController.js'}, function (resultArrayController) {
+                currentTabId = tabId;
+                currentTabIndex = tabIndex;
+            });
+        });
     };
 
     var resetVideoElement = function () {
-        vid = undefined;
         currentTabId = currentTabIndex = -1;
     };
 
     var getYouTubeTab = function () {
         chrome.tabs.query({url: '*://*.youtube.com/watch*'}, function (tabs) {
             if (tabs && tabs.length > 0) {
-                currentTabId = tabs[tabs.length-1].id;
-                currentTabIndex = tabs[tabs.length-1].index;
-                updateVideoElement()
+                var tab = tabs[tabs.length-1];
+                injectToVideoTab(tab.id,tab.index);
             }
             else {
                 resetVideoElement();
@@ -49,9 +51,7 @@ window.onload = function () {
         if(changeInfo.status!=='complete'){
             return;
         }
-
         //handle only relevant tabs >= currentTabId
-        console.log('*** line[48] ***', tabId, changeInfo, tab);
         //our tab was changed
         if (tab.index === currentTabIndex) {
             //still watching a video, not actions are need to be made
@@ -62,20 +62,16 @@ window.onload = function () {
             });
         }
         else if (tab.index > currentTabIndex) {
-            console.log('*** line[67] ***', tab);
             //new tab url is youtube
             chrome.tabs.query({index:tab.index, url: '*://*.youtube.com/watch*'}, function(tabs){
                 if (tabs && tabs.length > 0) {
-                    currentTabId = tabId;
-                    currentTabIndex = tab.index;
-                    updateVideoElement();
+                    injectToVideoTab(tab.id,tab.index);
                 }
             });
         }
     });
 
     chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
-        console.log('*** line[70] ***', tabId, removeInfo);
         //oh oh, need to find a new youtube video
         if (tabId === currentTabId) {
             getYouTubeTab();

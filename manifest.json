@@ -16,6 +16,6 @@
         "tabs": true
     },
     "permissions": [
-        "https://www.youtube.com"
+        "*://*.youtube.com/watch*"
     ]
 }
