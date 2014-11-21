@@ -7,22 +7,22 @@
 
 //example of using a message handler from the inject scripts
 chrome.extension.onMessage.addListener(
-  function(request, sender, sendResponse) {
-  	chrome.pageAction.show(sender.tab.id);
-    sendResponse();
-  });
-
+    function (request, sender, sendResponse) {
+        chrome.pageAction.show(sender.tab.id);
+        sendResponse();
+    }
+);
 
 
 var currentTabId = -1,
     currentTabIndex = -1;
 
 window.onload = function () {
-
-
     var injectToVideoTab = function (tabId, tabIndex) {
-        chrome.tabs.executeScript(tabId, {file:'../jquery-2.1.1.min.js'}, function (resultArrayJquery) {
-            chrome.tabs.executeScript(tabId, {file:'../videoObjController.js'}, function (resultArrayController) {
+        chrome.tabs.executeScript(tabId, {file: 'js/jquery-2.1.1.min.js'}, function (resultArrayJquery) {
+            console.log('*** line[23] ***', resultArrayJquery);
+            chrome.tabs.executeScript(tabId, {file: 'js/videoObjController.js'}, function (resultArrayController) {
+                console.log('*** line[25] ***', resultArrayController);
                 currentTabId = tabId;
                 currentTabIndex = tabIndex;
             });
@@ -36,8 +36,8 @@ window.onload = function () {
     var getYouTubeTab = function () {
         chrome.tabs.query({url: '*://*.youtube.com/watch*'}, function (tabs) {
             if (tabs && tabs.length > 0) {
-                var tab = tabs[tabs.length-1];
-                injectToVideoTab(tab.id,tab.index);
+                var tab = tabs[tabs.length - 1];
+                injectToVideoTab(tab.id, tab.index);
             }
             else {
                 resetVideoElement();
@@ -46,16 +46,15 @@ window.onload = function () {
     };
 
 
-
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-        if(changeInfo.status!=='complete'){
+        if (changeInfo.status !== 'complete') {
             return;
         }
         //handle only relevant tabs >= currentTabId
         //our tab was changed
         if (tab.index === currentTabIndex) {
             //still watching a video, not actions are need to be made
-            chrome.tabs.query({index:tab.index, url: '*://*.youtube.com/watch*'}, function(tabs){
+            chrome.tabs.query({index: tab.index, url: '*://*.youtube.com/watch*'}, function (tabs) {
                 if (!tabs || !tabs.length > 0) {
                     getYouTubeTab()
                 }
@@ -63,9 +62,9 @@ window.onload = function () {
         }
         else if (tab.index > currentTabIndex) {
             //new tab url is youtube
-            chrome.tabs.query({index:tab.index, url: '*://*.youtube.com/watch*'}, function(tabs){
+            chrome.tabs.query({index: tab.index, url: '*://*.youtube.com/watch*'}, function (tabs) {
                 if (tabs && tabs.length > 0) {
-                    injectToVideoTab(tab.id,tab.index);
+                    injectToVideoTab(tab.id, tab.index);
                 }
             });
         }
@@ -77,7 +76,6 @@ window.onload = function () {
             getYouTubeTab();
         }
     });
-
 
 
     //###### Start Here ######//
