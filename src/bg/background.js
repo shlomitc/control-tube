@@ -33,8 +33,8 @@ var videoControllerModule = (function () {
 
 
 var currentTabId = -1,
-    currentTabIndex = -1;
-
+    currentTabIndex = -1,
+    currentTabInjected = false; //to handle case when double injected (on start and going to next video)
 
 window.onload = function () {
     var injectToVideoTab = function (tabId, tabIndex) {
@@ -44,6 +44,7 @@ window.onload = function () {
                     if (resultArrayController[0]) {
                         currentTabId = tabId;
                         currentTabIndex = tabIndex;
+                        currentTabInjected = true;
                     }
                     else {
                         //too bad...
@@ -60,6 +61,7 @@ window.onload = function () {
 
     var resetVideoElement = function () {
         currentTabId = currentTabIndex = -1;
+        currentTabInjected = false;
     };
 
     var getYouTubeTab = function () {
@@ -86,6 +88,13 @@ window.onload = function () {
             chrome.tabs.query({index: tab.index, url: '*://*.youtube.com/watch*'}, function (tabs) {
                 if (!tabs || !tabs.length > 0) {
                     getYouTubeTab()
+                }
+                else if (!currentTabInjected){
+                    injectToVideoTab(tab.id, tab.index);
+                }
+                else{
+                    //already injected, don't do anything
+                    return;
                 }
             });
         }
