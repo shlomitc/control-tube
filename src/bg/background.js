@@ -4,26 +4,43 @@
 //     "sample_setting": "This is how you use Store.js to remember values"
 // });
 
+var videoControllerModule = (function () {
+    this.playPause = function () {
+        chrome.tabs.sendMessage(currentTabId, 'playPause');
+    };
 
-//example of using a message handler from the inject scripts
-chrome.extension.onMessage.addListener(
-    function (request, sender, sendResponse) {
-        chrome.pageAction.show(sender.tab.id);
-        sendResponse();
-    }
-);
+    this.smallBack = function () {
+        chrome.tabs.sendMessage(currentTabId, 'smallBack');
+    };
+
+    this.smallForward = function () {
+        chrome.tabs.sendMessage(currentTabId, 'smallForward');
+    };
+
+    this.bigBack = function () {
+        chrome.tabs.sendMessage(currentTabId, 'bigBack');
+    };
+
+    this.bigForward = function () {
+        chrome.tabs.sendMessage(currentTabId, 'bigForward');
+    };
+
+    this.restart = function () {
+        chrome.tabs.sendMessage(currentTabId, 'restart');
+    };
+    return this;
+})();
 
 
 var currentTabId = -1,
     currentTabIndex = -1;
 
+
 window.onload = function () {
     var injectToVideoTab = function (tabId, tabIndex) {
-        console.log('*** line[22] ***', tabId, tabIndex);
         chrome.tabs.executeScript(tabId, {file: 'js/jquery-2.1.1.min.js'}, function (resultArrayJquery) {
             if (resultArrayJquery[0]) {
                 chrome.tabs.executeScript(tabId, {file: 'js/videoObjController.js'}, function (resultArrayController) {
-                    console.log('*** line[26] ***', resultArrayController);
                     if (resultArrayController[0]) {
                         currentTabId = tabId;
                         currentTabIndex = tabIndex;
@@ -93,5 +110,7 @@ window.onload = function () {
     //###### Start Here ######//
     getYouTubeTab();
 
-
+    this.check = function(){
+        videoControllerModule.smallForward();
+    }
 };
