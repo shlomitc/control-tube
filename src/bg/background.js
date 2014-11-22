@@ -19,22 +19,25 @@ var currentTabId = -1,
 
 window.onload = function () {
     var injectToVideoTab = function (tabId, tabIndex) {
-        console.log('*** line[22] ***', tabId,tabIndex);
+        console.log('*** line[22] ***', tabId, tabIndex);
         chrome.tabs.executeScript(tabId, {file: 'js/jquery-2.1.1.min.js'}, function (resultArrayJquery) {
-            if(!resultArrayJquery[0]){
-                //too bad...
-                console.log('Could not inject jquery');
-                return;
+            if (resultArrayJquery[0]) {
+                chrome.tabs.executeScript(tabId, {file: 'js/videoObjController.js'}, function (resultArrayController) {
+                    console.log('*** line[26] ***', resultArrayController);
+                    if (resultArrayController[0]) {
+                        currentTabId = tabId;
+                        currentTabIndex = tabIndex;
+                    }
+                    else {
+                        //too bad...
+                        console.log('Could not inject video controller');
+                    }
+                });
             }
-            chrome.tabs.executeScript(tabId, {file: 'js/videoObjController.js'}, function (resultArrayController) {
-                if(!resultArrayController[0]){
-                    //too bad...
-                    console.log('Could not inject video controller');
-                    return;
-                }
-                currentTabId = tabId;
-                currentTabIndex = tabIndex;
-            });
+            else {
+                //too bad...
+                console.log('Could not inject jQuery');
+            }
         });
     };
 
