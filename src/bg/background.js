@@ -25,8 +25,8 @@ var videoControllerModule = (function () {
         chrome.tabs.sendMessage(currentTabId, 'bigForward');
     };
 
-    this.restart = function () {
-        chrome.tabs.sendMessage(currentTabId, 'restart');
+    this.replay = function () {
+        chrome.tabs.sendMessage(currentTabId, 'replay');
     };
     return this;
 })();
@@ -110,7 +110,5 @@ window.onload = function () {
     //###### Start Here ######//
     getYouTubeTab();
 
-    this.check = function(){
-        videoControllerModule.smallForward();
-    }
+    this.check = videoControllerModule;
 };

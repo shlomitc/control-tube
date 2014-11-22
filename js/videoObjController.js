@@ -6,6 +6,7 @@ var alreadyIn = false;
     alreadyIn = true;
     var $ = window.jQuery;//pre-requisite
     var vid = $('[data-youtube-id]');
+    vid = vid && vid[0];
 
     var isPlaying = false;
 
@@ -18,6 +19,7 @@ var alreadyIn = false;
     };
 
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
+        var vid = $('[data-youtube-id]')[0];
         switch(request){
             case 'playPause':
                 if(isPlaying){
@@ -35,9 +37,9 @@ var alreadyIn = false;
                 vid.currentTime-=5;
                 break;
             case 'bigForward':
-                vid.currentTime-=5;
+                vid.currentTime+=5;
                 break;
-            case 'restart':
+            case 'replay':
                 vid.currentTime=0;
                 break;
             default :
